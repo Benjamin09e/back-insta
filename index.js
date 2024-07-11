@@ -4,15 +4,41 @@ const path = require("path");
 const dotenv = require("dotenv");
 const fs = require("fs");
 const cors = require("cors");
+const mongoose = require("mongoose");
+const bodyParser = require('body-parser');
+
+// Appelle des routes 
+const userRoute = require("./routes/user");
+const postRoute = require("./routes/posts");
+const commentaireRoute = require("./routes/commentaires");
+const likeRoute = require("./routes/likes");
+const sendRoute = require("./routes/send");
+const enregistrementRoute = require("./routes/enregistrement");
+const suivreRoute = require("./routes/suivres");
+const reelRoute = require("./routes/reels");
+
+// configuration
+dotenv.config();
 
 //appelle d'express
 const app = express();
+console.log(process.env.MONGO_LINK)
+
+// connexion avec la base de donnée
+mongoose.connect(process.env.MONGO_LINK).then(()=>{
+  console.log("connected with succes !")
+}).catch(error =>{
+  console.log(error)
+})
 
 //appelle de cors
 app.use(cors());
 
-//configuration
-dotenv.config();
+// //appelle de bodyParser
+// app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 //liaison avec un fichier html
 app.use(express.static("/public"));
@@ -21,8 +47,8 @@ app.use(express.static("/public"));
 app.use(express.json());
 
 //recuperer les données du fichier json
-const userdata = fs.readFileSync("./useurs.json");
-const data = JSON.parse(userdata);
+// const userdata = fs.readFileSync("./useurs.json");
+// const data = JSON.parse(userdata);
 //console.log(data);
 
 //afficher des données
@@ -32,6 +58,7 @@ app.get("/", (req, res) => {
 });
 
 //envoyer des données
+/*
 app.post("/", (req, res) => {
   //console.log(req.params.ID);
   const content = req.body;
@@ -99,7 +126,20 @@ app.delete("/:id", (req, res) => {
   } catch (error) {
     res.status(500).json("Erreur de delete ");
   }
-});
+});  
+
+*/
+
+
+// routes d'acces à la base de données
+app.use("/insta-api/users", userRoute);
+app.use("/insta-api/posts", postRoute);
+app.use("/insta-api/commentaires", commentaireRoute);
+app.use("/insta-api/likes", likeRoute);
+app.use("/insta-api/send", sendRoute);
+app.use("/insta-api/enregistrement", enregistrementRoute);
+app.use("/insta-api/suivres", suivreRoute);
+app.use("/insta-api/reels", reelRoute);
 
 //lancement du serveur
 app.listen(process.env.PORT, () => {
